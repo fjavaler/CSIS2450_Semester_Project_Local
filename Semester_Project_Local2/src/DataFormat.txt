@@ -1,0 +1,6 @@
+Date(MM-DD-YYYY)
+Time
+Temp(Degrees)
+Rainfall(inches)
+Wind(MPH)
+Humidity

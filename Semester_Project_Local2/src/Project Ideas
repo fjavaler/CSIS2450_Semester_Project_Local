@@ -1,0 +1,10 @@
+Weather Station Monitor
+	Rain,temp,humidity, and wind speed sensors connected to a Raspberry Pi or Arduino
+		Build this out so that it still works under inclement weather
+		Must figure out how to connect raspberry pi to internet as well as upload the csv online
+	
+	Log data upload daily to a csv file online somewhere
+	
+	Desktop app with GUI to interface with that data.
+		Classes to read in data, interface/manipulate data, and display information to end user
+		Possible Android app as well?
