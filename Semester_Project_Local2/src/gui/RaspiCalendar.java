@@ -6,7 +6,6 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.GregorianCalendar;
-
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -21,7 +20,6 @@ public class RaspiCalendar
 	private static final int HEIGHT = 650;
 	private static TIMESOFDAY timeofday;
 	private static String query;
-
 	private static JFrame raspiRevolutionaries = new JFrame();
 
 	public static void main(String[] args)
@@ -34,6 +32,7 @@ public class RaspiCalendar
 		raspiRevolutionaries.getContentPane().setBackground(Color.BLACK);
 		raspiRevolutionaries.setSize(WIDTH, HEIGHT);
 		raspiRevolutionaries.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		raspiRevolutionaries.setLocationRelativeTo(null);
 		raspiRevolutionaries.setVisible(true);
 		raspiRevolutionaries.pack();
 

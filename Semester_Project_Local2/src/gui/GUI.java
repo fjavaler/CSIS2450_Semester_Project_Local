@@ -13,7 +13,6 @@ import java.awt.GraphicsEnvironment;
 import javax.swing.SwingConstants;
 import java.awt.Color;
 import java.awt.Dimension;
-
 import javax.swing.JLabel;
 import java.awt.Toolkit;
 import java.awt.event.ActionListener;
@@ -30,6 +29,7 @@ public class GUI
 {
 	// fields
 	private JFrame frmWeatherStation;
+	private RaspiCalendar calendar;
 
 	/**
 	 * Launch the application.
@@ -70,8 +70,10 @@ public class GUI
 		ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 		try
 		{
-			ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, GUI.class.getResourceAsStream("/fonts/digital-7Mono.ttf")));
-			ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, GUI.class.getResourceAsStream("/fonts/digital-7Italic.ttf")));
+			ge.registerFont(
+					Font.createFont(Font.TRUETYPE_FONT, GUI.class.getResourceAsStream("/fonts/digital-7Mono.ttf")));
+			ge.registerFont(
+					Font.createFont(Font.TRUETYPE_FONT, GUI.class.getResourceAsStream("/fonts/digital-7Italic.ttf")));
 			ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, GUI.class.getResourceAsStream("/fonts/FUTURISM.TTF")));
 			ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, GUI.class.getResourceAsStream("/fonts/NotoSans.ttf")));
 		} catch (FontFormatException e)
@@ -97,8 +99,16 @@ public class GUI
 		frmWeatherStation.getContentPane().setLayout(null);
 		Dimension screenSize = frmWeatherStation.getSize();
 		frmWeatherStation.setSize(screenSize);
-		
+
 		JButton btnHistoricalData = new JButton("");
+		btnHistoricalData.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent arg0)
+			{
+				calendar = new RaspiCalendar();
+				calendar.main(null);
+			}
+		});
 		btnHistoricalData.setToolTipText("Opens a calendar in which you can get historical data by date.");
 		btnHistoricalData.setSelectedIcon(new ImageIcon(GUI.class.getResource("/images/historicalDataButton.png")));
 		btnHistoricalData.setIcon(new ImageIcon(GUI.class.getResource("/images/historicalDataButton.png")));
@@ -274,7 +284,7 @@ public class GUI
 		lblRevolutionaries.setForeground(Color.GREEN);
 		lblRevolutionaries.setBounds(366, 649, 440, 107);
 		frmWeatherStation.getContentPane().add(lblRevolutionaries);
-		
+
 		JSeparator separator_8 = new JSeparator();
 		separator_8.setBounds(22, 767, 755, 2);
 		frmWeatherStation.getContentPane().add(separator_8);
