@@ -29,6 +29,7 @@ public class GUI
 {
 	// fields
 	private JFrame frmWeatherStation;
+	@SuppressWarnings("unused")
 	private RaspiCalendar calendar;
 
 	/**
@@ -106,7 +107,7 @@ public class GUI
 			public void actionPerformed(ActionEvent arg0)
 			{
 				calendar = new RaspiCalendar();
-				calendar.main(null);
+				RaspiCalendar.main(null);
 			}
 		});
 		btnHistoricalData.setToolTipText("Opens a calendar in which you can get historical data by date.");
