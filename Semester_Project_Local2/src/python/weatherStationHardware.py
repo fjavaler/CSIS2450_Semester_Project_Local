@@ -5,9 +5,11 @@
 #DHT library from Adafruit for the temperature and humidity sensor
 
 import spidev
-import time
 import os
 import Adafruit_DHT
+import time
+from subprocess import call
+from datetime import datetime
 
 dht = Adafruit_DHT.AM2302
 
@@ -27,8 +29,12 @@ def GetRainfall():
 	rRef = ReadChannel(2)
 	# Calculates the resistance of the ETape water strip
 	# Vout = (R2 * Vin) / (R1+R2)
-	rainfall = (rainfall * 470) / (1023 - rainfall)
-	rRef = (rRef * 470) / (1023 - rRef)
+	try:
+		rainfall = (rainfall * 330) / (1023 - rainfall)
+		rRef = (rRef * 330) / (1023 - rRef)
+	except ZeroDivisionError:
+		rainfall = 0
+		rRef = 0
 	return rainfall, rRef
 	
 def GetTempHumid():
@@ -40,7 +46,8 @@ def GetTempHumid():
 	if temp is None:
 		temp = -1
 		
-	# Returns humidity in percentage and temp in Celsius 
+	# Returns humidity in percentage and temp in Celsius
+	 
 	return humid, temp
 	
 def GetWindSpeed():
@@ -50,45 +57,93 @@ def GetWindSpeed():
 	# Use voltage to determine speed
 	# voltage/meters per second ratio: 
 	# 0.47V = 0 m/s -- 2V = 32.4 m/s 	
-	speed = ((voltage - 0.47) * 16.2)
+	speed = ((voltage - initial) * 16.2)
 	#Disregard voltage if not necessary 
 	#Returns speed in meters per second
-	return round(speed, 2), round(voltage, 2)
+	return speed, voltage
+	
+def RainfallDifference(rainfall, rRef):
+	return (rRef - rainfall)
+	
+def WriteDataOut(filename, temp, humi, speed, rainfall):
+	with open(filename, 'a') as file_obj:
+		
+		file_obj.write("{}:{},{},{},{},{}\n".format(
+		str(datetime.now().hour), str(datetime.now().minute), 
+		str(temp), str(humi), str(speed), str(rainfall)))
 
-def SpeedToMPH(speed):
-	"""Converts meters per second windspeed to miles per hour"""
-	
-	# 1 mile = 1609.34 meters
-	speed = (speed * 3600) / 1609.3
-	return round(speed, 2)
-	
-def TempToFahrenheit(temp):
-	temp = ((temp * 9) / 5) + 32
-	return round(temp, 2)
+def TimeStamp(filename):
+	with open(filename, 'a') as file_obj:
+		file_obj.write(str(datetime.now().year) + "/" + 
+		str(datetime.now().month) + "/" + str(datetime.now().day))
 
-def RainfallToInches(rainfall, rRef):
-	rainfall = (rainfall - previous) / float(150)
-	rainfall = round(rainfall, 2)
-	return rainfall
-	
-def RainfallToCentimeters(rainfall, rRef):
-	rainfall = (rainfall - previous) / float(60)
-	rainfall = round(rainfall, 2)
-	return rainfall
-	
-delay = 6
+def Average(arrayIn):
+	leng = len(arrayIn)
+	if(leng == 0):
+		leng = 1
 
-while True:
+	for numbs in arrayIn:
+		if (numbs < 0):
+			leng -= 1
+		
+	return sum(arrayIn) / float(leng)
+				
+initial = (ReadChannel(0) * 3.3)/float(1023)
+temps = []
+speeds = []
+humidities = []
+rainfalls = []
+wrote = False
+filename = '/home/pi/Documents/CSIS2450 Project/weatherdata.txt'
 
-	#Read in data
-	humid, temp = GetTempHumid()
-	speed, voltage = GetWindSpeed()
-	rainfall, rRef = GetRainfall()
+while True:	
+
+	if datetime.now().hour == 0 and datetime.now().minute == 0 and datetime.now().second == 0:
+		TimeStamp(filename)
 	
-	#Example print
-	print "----------------------"
-	print("Speed: {} ({}V)".format(speed,voltage))
-	print("Temp: {} Humidity {}".format(round(temp, 2), round(humid, 2)))
-	print("Rainfall {} - {}".format(rainfall, rRef))
+	if datetime.now().second % 10 == 0:	
+		humid, temp = GetTempHumid()
+		speed, voltage = GetWindSpeed()
+		rainfall, rRef = GetRainfall()
+		
+		if(temp >= 0):
+			temps.append(temp)
+						
+		if(speed >= 0):
+			speeds.append(speed)
+			
+		if(humid >= 0):
+			humidities.append(humid)
+			
+		if(rRef - rainfall >= 0):
+			rainfalls.append(RainfallDifference(rainfall, rRef))			
+			
+		print("{}:{},{},{},{},{}\n".format(
+		str(datetime.now().hour), str(datetime.now().minute), 
+		str(temp), str(humid), str(speed),
+		str(RainfallDifference(rainfall, rRef))))
+		
+		time.sleep(0.8)
 	
-	time.sleep(delay)
+	if datetiem.now().minute % 10 > 7:
+		wrote = False
+				
+	if datetime.now().minute % 10 == 0 and wrote != True:
+		humid = Average(humidities)
+		temp = Average(temps)
+		speed = Average(speeds)
+		rainfall = Average(rainfalls)
+		
+		WriteDataOut(filename, temp, humid, speed, rainfall)
+		
+		del humidities[:]
+		del temps[:]
+		del speeds[:]
+		del rainfalls[:]
+		
+		#The directory may have to be changed before the following
+		#command will work
+		
+		#call("java -cp . class args")
+		
+		wrote = True
